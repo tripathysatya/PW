@@ -1,0 +1,28 @@
+#!/bin/bash
+
+zlogs="/tmp/dwrk1_zlogs.txt"
+uniranids="/tmp/inland_ntw_info.csv"
+
+ls -ltrh /iond_lake/logs/ > $zlogs
+
+{
+read
+while read x n u g s m d h f
+do
+        vnode="vbbu"
+        timestamp=$m" "$d" "$h
+        uid=$(echo $f | awk 'BEGIN {FS="-"}{print $1}')
+        ruid=$(echo $f | awk 'BEGIN {FS=OFS="-"}{print $2, $3}')
+        vbbuline=($(grep $uid $uniranids | awk 'BEGIN {FS=","}{print $1" "$2" "$3" "$4" "$5" "$6}'))
+
+        vbbuname=${vbbuline[0]}
+        if [[ "$vbbuname" == "" ]]; then vbbuname="-vbbu--"; vnode="-vnode-";fi
+
+        if [[ "$uid" == "${vbbuline[2]}" ]]; then vnode="vnode01"; fi
+        if [[ "$uid" == "${vbbuline[3]}" ]]; then vnode="vnode02"; fi
+        if [[ "$uid" == "${vbbuline[4]}" ]]; then vnode="vnode03"; fi
+        if [[ "$uid" == "${vbbuline[5]}" ]]; then vnode="vnode04"; fi
+
+        printf '%10s %-18s %-8s %5s %-4s %-2s %-6s %-70s\n' $uid $vbbuname $vnode $s $timestamp $uid"-"$ruid
+done
+} < $zlogs
